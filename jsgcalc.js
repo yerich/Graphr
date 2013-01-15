@@ -279,7 +279,7 @@ function JSgCalc (element){
 		//draw label text
 		this.ctx.font = "10pt 'open sans'";
 		this.ctx.fillStyle = "#000000";
-		text = "x="+xval+", d/dx="+slope;
+		text = "x="+(Math.round(xval*1000)/1000)+", d/dx="+slope;
 		xval2 = xval;	//find out whether to put label above or below dot
 		xval -= this.xgridscale / 5;
 		answer2 = Parser.evaluate(equation, {x : xval});
