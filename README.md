@@ -6,4 +6,7 @@ standard algebraic functions in the Cartesian plane. Features include fast, accu
 graphing and full mouse zoom and pan support. Additionally, there are many graphing
 tools available, such as tracing a function, finding a root, finding the derivative, etc.
 
+Designed for demonstration purposes only - https://www.desmos.com/calculator is a better
+calculator for real mathematics.
+
 Check out the web-based demo at http://www.graphr.org/
