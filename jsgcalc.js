@@ -29,6 +29,7 @@ function JSgCalc (element){
 	this.quality = 1;
 	this.zoomFactor = 0.1;
 	this.lines = [];
+	this.fillareapath;
 
 	this.arbRound = function(value, roundTo) {
 		return Math.round(value/roundTo)*roundTo;
@@ -63,35 +64,39 @@ function JSgCalc (element){
 		if(!equation)
 			return false;
 		
-		x1 = this.currCoord.x1;
-		x2 = this.currCoord.x2;
-		y1 = this.currCoord.y1;
-		y2 = this.currCoord.y2;
+		var x1 = this.currCoord.x1;
+		var x2 = this.currCoord.x2;
+		var y1 = this.currCoord.y1;
+		var y2 = this.currCoord.y2;
 
-		xrange = x2 - x1;
-		yrange = y2 - y1;
+		var xrange = x2 - x1;
+		var yrange = y2 - y1;
 
-		scale = this.getScale();
+		var scale = this.getScale();
 
 		if(!this.calccache[equation])
 			this.calccache[equation] = new Object;
 
 		this.ctx.strokeStyle = color;
-		old_linewidth = this.ctx.linewidth
+		var old_linewidth = this.ctx.linewidth
 		if(thickness)
-			this.ctx.linewidth = thickness
+			this.ctx.linewidth = thickness;
 		this.ctx.beginPath();
 		//We don't want to draw lines that go off the screen too much, so we keep track of how many times we've had
 		//to go off the screen here
-		lineExists = 0;
-		lastpoint = 0;
-		//Loop through each pixel
-		for(i = 0; i < this.width + (1 / this.quality); i += (1 / this.quality)) {
-			xval = i / scale.x + x1;	//calculate the x-value for a given pixel
-			
-			yval = Parser.evaluate(equation, {"x" : xval});	//evaluate the equation
+		var lineExists = 0;
+		var lastpoint = 0;
 
-			ypos = this.height - ((yval - y1) * scale.y);
+		this.fillareapath = [];
+		this.fillareapath.push([0, this.height - ((-y1) * scale.y)]);
+		//Loop through each pixel
+		var maxxval = this.width + (1 / this.quality);
+		for(var i = 0; i < maxxval; i += (1 / this.quality)) {
+			var xval = i / scale.x + x1;	//calculate the x-value for a given pixel
+			
+			var yval = Parser.evaluate(equation, {"x" : xval});	//evaluate the equation
+
+			var ypos = this.height - ((yval - y1) * scale.y);
 			//The line is on the screen, or pretty close to it
 			if(ypos >= (this.height * -1) && ypos <= this.height * 2) {
 				if(lineExists > 1)
@@ -100,8 +105,9 @@ function JSgCalc (element){
 				if(lastpoint !== false && ((lastpoint > 0 && yval < 0) || (lastpoint < 0 && yval > 0))) {
 					this.ctx.moveTo(i, ypos);
 				}
-				else
+				else {
 					this.ctx.lineTo(i, ypos);
+				}
 
 				lineExists = 0;
 				lastpoint = false;
@@ -112,10 +118,30 @@ function JSgCalc (element){
 				this.ctx.stroke();
 				lineExists++;
 			}
+			this.fillareapath.push([i, ypos]);
 			//this.ctx.fillRect(i - 0.5, ypos - 0.5, 1, 1);
 		}
+		this.fillareapath.push([maxxval, this.height - ((-y1) * scale.y)]);
 		this.ctx.stroke();
 		this.ctx.linewidth = old_linewidth
+	}
+
+	this.drawFillArea = function() {
+		if (this.fillareapath.length < 1) {
+			return;
+		}
+
+		this.ctx.beginPath();
+		this.ctx.fillStyle="rgba(0, 0, 0, 0.1)";
+		for(var i = 0; i < this.fillareapath.length; i++) {
+			if (i === 0) {
+				this.ctx.lineTo(this.fillareapath[i][0], this.fillareapath[i][1]);
+			}
+			else {
+				this.ctx.lineTo(this.fillareapath[i][0], this.fillareapath[i][1]);
+			}
+		}
+		this.ctx.fill();
 	}
 	
 	//Draws an arbritrary straight line from (x1, y1) to (x2, y2)
@@ -130,7 +156,7 @@ function JSgCalc (element){
 		this.ctx.moveTo(start.x, start.y);
 		this.ctx.lineTo(end.x, end.y);
 		
-		tmp = this.ctx.lineWidth
+		var tmp = this.ctx.lineWidth
 		if(thickness)
 			this.ctx.lineWidth = thickness
 		
@@ -154,7 +180,7 @@ function JSgCalc (element){
 		
 		if(ypos-4 < this.charHeight)
 			ypos += this.charHeight * 2;
-		textwidth = this.ctx.measureText(text).width;
+		var textwidth = this.ctx.measureText(text).width;
 		if(xpos-4 < textwidth)
 			xpos += textwidth + 3;
 		this.ctx.fillText(text, xpos-3, ypos-3);
@@ -175,10 +201,10 @@ function JSgCalc (element){
 
 	//Draws thge vertex of an equation (i.e. when it changes direction)
 	this.drawVertex = function(equation, color, x) {
-		scale = this.getScale();
-		xpos = x / scale.x + this.currCoord.x1;
-		matchingDist = 20 / scale.x;
-		answer = Calc.getVertex(equation, xpos-matchingDist, xpos+matchingDist, 0.0000001);
+		var scale = this.getScale();
+		var xpos = x / scale.x + this.currCoord.x1;
+		var matchingDist = 20 / scale.x;
+		var answer = Calc.getVertex(equation, xpos-matchingDist, xpos+matchingDist, 0.0000001);
 		var tries = 0;
 		while(answer === false) {
 			tries++;
@@ -186,9 +212,9 @@ function JSgCalc (element){
 				return false;
 			answer = Calc.getVertex(equation, xpos-matchingDist-Math.random()/100, xpos+matchingDist+Math.random()/100, 0.0000001);
 		}
-		xval = Calc.roundFloat(answer);
-		yval = Parser.evaluate(equation, {x : xval});
-		yval = Calc.roundFloat(this.arbRound(yval, 0.0000001));
+		var xval = Calc.roundFloat(answer);
+		var yval = Parser.evaluate(equation, {x : xval});
+		var yval = Calc.roundFloat(this.arbRound(yval, 0.0000001));
 		this.drawDot(xval, yval, color, 4);
 
 		//draw label text
@@ -197,17 +223,17 @@ function JSgCalc (element){
 
 	//Draws the root of an equation (i.e. where x=0)
 	this.drawRoot = function(equation, color, x) {
-		scale = this.getScale();
-		xpos = x / scale.x + this.currCoord.x1;
+		var scale = this.getScale();
+		var xpos = x / scale.x + this.currCoord.x1;
 		//Calculate the root (within 50 pixels)
-		answer = Calc.getRoot(equation, xpos, 50 / scale.x);
+		var answer = Calc.getRoot(equation, xpos, 50 / scale.x);
 		if(answer === false)
 			return false;
 			
 		answer = Math.round(answer * 10000000) / 10000000;
 		
-		xval = Calc.roundFloat(answer);
-		yval = 0;
+		var xval = Calc.roundFloat(answer);
+		var yval = 0;
 		
 		this.drawDot(xval, yval, color, 4); //draw the dot
 		//draw label text
@@ -224,7 +250,7 @@ function JSgCalc (element){
 			if(this.getEquation(i) == equation1)
 				continue;
 
-			tempanswer = Calc.getIntersection(equation1, this.getEquation(i), xpos, 50 / scale.x);
+			var tempanswer = Calc.getIntersection(equation1, this.getEquation(i), xpos, 50 / scale.x);
 			if(tempanswer === false)
 				continue;
 			tempanswer = Math.round(tempanswer * 10000000) / 10000000;
@@ -248,26 +274,26 @@ function JSgCalc (element){
 	}
 
 	this.drawDerivative = function(equation, color, x) {
-		scale = this.getScale();
-		xpos = Calc.roundFloat(this.arbRound(x / scale.x + this.currCoord.x1, this.xgridscale/100));
+		var scale = this.getScale();
+		var xpos = Calc.roundFloat(this.arbRound(x / scale.x + this.currCoord.x1, this.xgridscale/100));
 
 		//Do the actual calculation.
-		slope = Math.round(Calc.getDerivative(equation, xpos) * 1000000) / 1000000;
+		var slope = Math.round(Calc.getDerivative(equation, xpos) * 1000000) / 1000000;
 
-		xval = xpos;
-		yval = Parser.evaluate(equation, {x : xval});
+		var xval = xpos;
+		var yval = Parser.evaluate(equation, {x : xval});
 		yval = Calc.roundFloat(this.arbRound(yval, 0.0000001));
-		pos = this.getCoord(xval, yval);
+		var pos = this.getCoord(xval, yval);
 		this.ctx.beginPath();
 		this.ctx.fillStyle = color;
 		this.ctx.arc(pos.x, pos.y, 4, 0, Math.PI*2, false);
 		this.ctx.fill();
 
 		//draw derivative lines of exactly 2*xgridscale long
-		xdist = this.xgridscale*2 / (Math.sqrt(Math.pow(slope, 2) + 1));
-		ydist = xdist * slope;
-		linestart = {x : xval - xdist, y : yval - ydist};
-		lineend = {x : xval + xdist, y : yval + ydist};
+		var xdist = this.xgridscale*2 / (Math.sqrt(Math.pow(slope, 2) + 1));
+		var ydist = xdist * slope;
+		var linestart = {x : xval - xdist, y : yval - ydist};
+		var lineend = {x : xval + xdist, y : yval + ydist};
 		this.ctx.beginPath();
 		this.ctx.strokeStyle = "#000000";
 		linestart = this.getCoord(linestart.x, linestart.y);
@@ -279,15 +305,15 @@ function JSgCalc (element){
 		//draw label text
 		this.ctx.font = "10pt 'open sans'";
 		this.ctx.fillStyle = "#000000";
-		text = "x="+xval+", d/dx="+slope;
-		xval2 = xval;	//find out whether to put label above or below dot
+		var text = "x="+xval+", d/dx="+slope;
+		var xval2 = xval;	//find out whether to put label above or below dot
 		xval -= this.xgridscale / 5;
-		answer2 = Parser.evaluate(equation, {x : xval});
+		var answer2 = Parser.evaluate(equation, {x : xval});
 		xval += this.xgridscale / 10;
-		answer3 = Parser.evaluate(equation, {x : xval});
+		var answer3 = Parser.evaluate(equation, {x : xval});
 		if(pos.y-4 < this.charHeight || answer2 > answer3)
 			pos.y += this.charHeight + 3;
-		textwidth = this.ctx.measureText(text).width;
+		var textwidth = this.ctx.measureText(text).width;
 		if(pos.x-4 < textwidth)
 			pos.x += textwidth + 3;
 		this.ctx.fillText(text, pos.x-4, pos.y-4);
@@ -296,13 +322,13 @@ function JSgCalc (element){
 	//Draws the trace on an equation
 	//xpos is the pixel value of x, not the numerical value
 	this.drawTrace = function(equation, color, xval) {
-		scale = this.getScale();
+		var scale = this.getScale();
 		
-		xval = float_fix(this.arbRound(xval, this.xgridscale / 100));
-		yval = Parser.evaluate(equation, {x : xval});	//evaluate the equation
+		var xval = float_fix(this.arbRound(xval, this.xgridscale / 100));
+		var yval = Parser.evaluate(equation, {x : xval});	//evaluate the equation
 		yval = float_fix(yval);
-		xpos = this.getCoord(xval, yval).x;
-		ypos = this.getCoord(xval, yval).y;
+		var xpos = this.getCoord(xval, yval).x;
+		var ypos = this.getCoord(xval, yval).y;
 
 		this.ctx.strokeStyle = color;
 		//Draw the lines if the y-value is on the screen
@@ -328,17 +354,17 @@ function JSgCalc (element){
 	this.drawGrid = function() {
 		this.clearScreen();
 
-		x1 = this.currCoord.x1;
-		x2 = this.currCoord.x2;
-		y1 = this.currCoord.y1;
-		y2 = this.currCoord.y2;
+		var x1 = this.currCoord.x1;
+		var x2 = this.currCoord.x2;
+		var y1 = this.currCoord.y1;
+		var y2 = this.currCoord.y2;
 
-		xrange = x2 - x1;
-		yrange = y2 - y1;
+		var xrange = x2 - x1;
+		var yrange = y2 - y1;
 
 		//Calculate the numeric value of each pixel (scale of the graph)
-		xscale = xrange/this.width;
-		yscale = yrange/this.height;
+		var xscale = xrange/this.width;
+		var yscale = yrange/this.height;
 
 		//Calculate the scale of the gridlines
 		for(i = 0.000000000001, c = 0; xrange/i > this.maxgridlines.x -1; c++) {
@@ -357,13 +383,13 @@ function JSgCalc (element){
 		this.ctx.font = "10pt 'open sans'";	//set the font
 		this.ctx.textAlign = "center";
 
-		xaxis = yaxis = null;
+		var xaxis = yaxis = null;
 
 		//currx is the current gridline being drawn, as a numerical value (not a pixel value)
-		currx = this.arbFloor(x1, this.xgridscale);	//set it to before the lowest x-value on the screen
-		curry = this.arbFloor(y1, this.ygridscale);
-		xmainaxis = this.charHeight * 1.5;	//the next two variables are the axis on which text is going to be placed
-		ymainaxis = -1;
+		var currx = this.arbFloor(x1, this.xgridscale);	//set it to before the lowest x-value on the screen
+		var curry = this.arbFloor(y1, this.ygridscale);
+		var xmainaxis = this.charHeight * 1.5;	//the next two variables are the axis on which text is going to be placed
+		var ymainaxis = -1;
 		currx = float_fix(currx);	//flix floating point errors
 		curry = float_fix(curry);
 
@@ -386,7 +412,7 @@ function JSgCalc (element){
 			ymainaxis = -1;
 		}
 
-		sigdigs = String(currx).length + 3;
+		var sigdigs = String(currx).length + 3;
 		//VERTICAL LINES
 		for(i = 0; i < this.maxgridlines.x; i++) {
 			xpos = ((currx-x1)/(x2-x1))*this.width;	//position of the line (in pixels)
@@ -410,7 +436,7 @@ function JSgCalc (element){
 
 			//Draw label
 			if (currx != 0) {
-				xtextwidth = this.ctx.measureText(currx).width;
+				var xtextwidth = this.ctx.measureText(currx).width;
 				if (xpos + xtextwidth * 0.5 > this.width) //cannot overflow the screen
 					xpos = this.width - xtextwidth * 0.5 + 1;
 				else 
@@ -448,12 +474,12 @@ function JSgCalc (element){
 
 			//Draw label
 			if (curry != 0) {
-				ytextwidth = this.ctx.measureText(curry).width;
+				var ytextwidth = this.ctx.measureText(curry).width;
 				if (ypos + (this.charHeight / 2) > this.height) //cannot overflow the screen
 					ypos = this.height - (this.charHeight / 2) - 1;
 				if (ypos - 4 < 0) 
 					ypos = 4;
-				xaxispos = ymainaxis;
+				var xaxispos = ymainaxis;
 				if (ymainaxis == -1) 
 					xaxispos = ytextwidth + 1;
 				this.ctx.fillText(curry, xaxispos, ypos + 3);
@@ -469,16 +495,16 @@ function JSgCalc (element){
 
 	//get the pixel coordinates of a value
 	this.getCoord = function(x, y) {
-		xpos = ((x-this.currCoord.x1)/(this.currCoord.x2-this.currCoord.x1))*this.width;
-		ypos = this.height - ((y-this.currCoord.y1)/(this.currCoord.y2-this.currCoord.y1))*this.height;
+		var xpos = ((x-this.currCoord.x1)/(this.currCoord.x2-this.currCoord.x1))*this.width;
+		var ypos = this.height - ((y-this.currCoord.y1)/(this.currCoord.y2-this.currCoord.y1))*this.height;
 		return {x : xpos, y : ypos};
 	}
 
 	//get the (numerical) position of a (pixel) coordinate
 	this.getValue = function(x, y){
-		scale = this.getScale();
-		xpos = x / scale.x + this.currCoord.x1;
-		ypos = (this.height - y) / scale.y + this.currCoord.y1;
+		var scale = this.getScale();
+		var xpos = x / scale.x + this.currCoord.x1;
+		var ypos = (this.height - y) / scale.y + this.currCoord.y1;
 		return {x : xpos, y : ypos};
 	}
 
@@ -488,8 +514,8 @@ function JSgCalc (element){
 			dump("Invalid doZoomBox");
 			return;
 		}
-		coord1 = this.getValue(x1, y1);
-		coord2 = this.getValue(x2, y2);
+		var coord1 = this.getValue(x1, y1);
+		var coord2 = this.getValue(x2, y2);
 
 		if(x1 > x2) {
 			this.currCoord.x1 = coord2.x;
@@ -540,6 +566,7 @@ function JSgCalc (element){
 		if(x == this.prevDrag.x && y == this.prevDrag.y)
 			return;
 
+		var scale = this.getScale();
 		if(this.mousebutton == 1) {
 			if(jsgui.currtool == "zoombox" || jsgui.currtool == "zoombox_active") {	//ZOOM BOX
 				this.draw();
@@ -547,8 +574,6 @@ function JSgCalc (element){
 				this.ctx.strokeRect (this.startDrag.x, this.startDrag.y, x-this.startDrag.x, y-this.startDrag.y);
 			}
 			else { //CLICK AND DRAG
-				//find the scale of the graph (units per pixel)
-				scale = this.getScale();
 				//dump(scale.x + " " + scale.y + " -- " + this.startCoord.x1 + " " + this.startCoord.y1);
 				//dump(this.startCoord.x1 + " " +(y - this.startDrag.y) / scale.y);
 				this.currCoord.x1 = this.startCoord.x1 - ((x - this.startDrag.x) / scale.x);
@@ -634,12 +659,12 @@ function JSgCalc (element){
 	}
 
 	this.zoom = function(scale, event) {
-		range = this.getRange();
+		var range = this.getRange();
 		if(event) {
-			mousex = event.pageX - this.canvasX;
-			mousey = event.pageY - this.canvasY;
-			mousetop = 1-(mousey / this.height);	//if we divide the screen into two halves based on the position of the mouse, this is the top half
-			mouseleft = mousex / this.width;	//as above, but the left hald
+			var mousex = event.pageX - this.canvasX;
+			var mousey = event.pageY - this.canvasY;
+			var mousetop = 1-(mousey / this.height);	//if we divide the screen into two halves based on the position of the mouse, this is the top half
+			var mouseleft = mousex / this.width;	//as above, but the left hald
 			this.currCoord.x1 += range.x * scale * mouseleft;
 			this.currCoord.y1 += range.y * scale * mousetop;
 			this.currCoord.x2 -= range.x * scale * (1-mouseleft);
@@ -665,8 +690,8 @@ function JSgCalc (element){
 	}
 
 	this.resizeGraph = function(width, height) {
-		oldheight = this.height;
-		oldwidth = this.width;
+		var oldheight = this.height;
+		var oldwidth = this.width;
 
 		//Resize the elements
 		$("#graph").width(width);
