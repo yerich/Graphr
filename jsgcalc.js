@@ -33,32 +33,32 @@ function JSgCalc (element){
 
 	this.arbRound = function(value, roundTo) {
 		return Math.round(value/roundTo)*roundTo;
-	}
+	};
 
 	this.arbFloor = function(value, roundTo) {
 		return Math.floor(value/roundTo)*roundTo;
-	}
+	};
 
 	this.copyCoord = function(coord) {
 		return {x1 : coord.x1, y1 : coord.y1, x2 : coord.x2, y2 : coord.y2};
-	}
+	};
 
 	this.clearScreen = function() {
 		this.ctx.fillStyle = "rgb(255,255,255)";
 		this.ctx.fillRect (0, 0, this.width, this.height);
-	}
+	};
 
 	this.getEquation = function(lineid) {
 		if(this.lines[lineid])
 			return Calc.parseEquation(this.lines[lineid].equation, true);
 		return false;
-	}
+	};
 
 	this.getColor = function(lineid) {
 		if(this.lines[lineid])
 			return this.lines[lineid].color;
 		return "#000000";
-	}
+	};
 
 	this.drawEquation = function(equation, color, thickness) {
 		if(!equation)
@@ -124,7 +124,7 @@ function JSgCalc (element){
 		this.fillareapath.push([maxxval, this.height - ((-y1) * scale.y)]);
 		this.ctx.stroke();
 		this.ctx.linewidth = old_linewidth
-	}
+	};
 
 	this.drawFillArea = function() {
 		if (this.fillareapath.length < 1) {
@@ -142,7 +142,7 @@ function JSgCalc (element){
 			}
 		}
 		this.ctx.fill();
-	}
+	};
 	
 	//Draws an arbritrary straight line from (x1, y1) to (x2, y2)
 	this.drawLine = function(x1, y1, x2, y2, color, thickness) {
@@ -162,7 +162,7 @@ function JSgCalc (element){
 		
 		this.ctx.stroke();
 		this.ctx.lineWidth = tmp
-	}
+	};
 	
 	//Draws an arbritrary label on the graph, given the numeric values (rather than the pixel values)
 	this.drawLabel = function(xval, yval, text, color) {
@@ -184,7 +184,7 @@ function JSgCalc (element){
 		if(xpos-4 < textwidth)
 			xpos += textwidth + 3;
 		this.ctx.fillText(text, xpos-3, ypos-3);
-	}
+	};
 	
 	this.drawDot = function(xval, yval, color, radius) {
 		if(!radius)
@@ -197,7 +197,7 @@ function JSgCalc (element){
 		this.ctx.fillStyle = color;
 		this.ctx.arc(coord.x, coord.y, radius, 0, Math.PI*2, false);
 		this.ctx.fill();
-	}
+	};
 
 	//Draws thge vertex of an equation (i.e. when it changes direction)
 	this.drawVertex = function(equation, color, x) {
@@ -238,7 +238,7 @@ function JSgCalc (element){
 		this.drawDot(xval, yval, color, 4); //draw the dot
 		//draw label text
 		this.drawLabel(xval, yval, Calc.roundFloat(this.arbRound(xval, 0.00000001))+", " + yval);
-	}
+	};
 
 	//draws the intersection of an equation and the nearest equation to the mose pointer
 	this.drawIntersect = function(equation1, color, x) {
@@ -260,7 +260,7 @@ function JSgCalc (element){
 				equation = equation1;
 			}
 		}
-		if(answer===false)
+		if(answer === false)
 			return false;
 
 		var xval = Calc.roundFloat(answer);
@@ -271,7 +271,7 @@ function JSgCalc (element){
 
 		//draw label text
 		this.drawLabel(xval, yval, float_fix(xval) + ", " + float_fix(yval), color);
-	}
+	};
 
 	this.drawDerivative = function(equation, color, x) {
 		var scale = this.getScale();
@@ -317,7 +317,7 @@ function JSgCalc (element){
 		if(pos.x-4 < textwidth)
 			pos.x += textwidth + 3;
 		this.ctx.fillText(text, pos.x-4, pos.y-4);
-	}
+	};
 
 	//Draws the trace on an equation
 	//xpos is the pixel value of x, not the numerical value
@@ -349,7 +349,7 @@ function JSgCalc (element){
 		//Update displayed trace values
 		$("input.jsgcalc_trace_input").val(xval);
 		$("input.jsgcalc_trace_output").val(yval);
-	}
+	};
 
 	this.drawGrid = function() {
 		this.clearScreen();
@@ -368,14 +368,14 @@ function JSgCalc (element){
 
 		//Calculate the scale of the gridlines
 		for(i = 0.000000000001, c = 0; xrange/i > this.maxgridlines.x -1; c++) {
-			if(c % 3 == 1) i *= 2.5;	//alternating between 2, 5 and 10
+			if(c % 3 === 1) i *= 2.5;	//alternating between 2, 5 and 10
 			else i *= 2;
 		}
 		this.xgridscale = i;
 
 		//do the same for the y-axis
 		for(i = 0.000000000001, c = 0; yrange/i > this.maxgridlines.y -1; c++) {
-			if(c % 3 == 1) i *= 2.5;
+			if(c % 3 === 1) i *= 2.5;
 			else i *= 2;
 		}
 		this.ygridscale = i;
@@ -425,10 +425,10 @@ function JSgCalc (element){
 			//currx = Calc.roundToSignificantFigures(currx, sigdigs);
 			currx =  float_fix(currx);
 
-			if(currx == 0)
+			if(currx === 0)
 				xaxis = xpos;
 
-			if(jsgui.gridlines == "normal" || (jsgui.gridlines == "less" && Calc.roundFloat(currx) % Calc.roundFloat((this.xgridscale*2)) == 0)) {
+			if(jsgui.gridlines === "normal" || (jsgui.gridlines === "less" && Calc.roundFloat(currx) % Calc.roundFloat((this.xgridscale*2)) === 0)) {
 				this.ctx.fillStyle = "rgb(190,190,190)";
 				this.ctx.fillRect (xpos-0.5, 0, 1, this.height);
 			}
@@ -466,7 +466,7 @@ function JSgCalc (element){
 			if(curry == 0)
 				yaxis = ypos;
 
-			if(jsgui.gridlines == "normal" || (jsgui.gridlines == "less" && Calc.roundFloat(curry) % (Calc.roundFloat(this.ygridscale*2)) == 0)) {
+			if(jsgui.gridlines === "normal" || (jsgui.gridlines === "less" && Calc.roundFloat(curry) % (Calc.roundFloat(this.ygridscale*2)) === 0)) {
 				this.ctx.fillStyle = "rgb(190,190,190)";
 				this.ctx.fillRect (0, ypos-0.5, this.width, 1);
 			}
@@ -480,7 +480,7 @@ function JSgCalc (element){
 				if (ypos - 4 < 0) 
 					ypos = 4;
 				var xaxispos = ymainaxis;
-				if (ymainaxis == -1) 
+				if (ymainaxis === -1) 
 					xaxispos = ytextwidth + 1;
 				this.ctx.fillText(curry, xaxispos, ypos + 3);
 			}
@@ -491,14 +491,14 @@ function JSgCalc (element){
 			this.ctx.fillRect (xaxis-0.5, 0, 1, this.height);
 		if(yaxis)
 			this.ctx.fillRect (0, yaxis-0.5, this.width, 1);
-	}
+	};
 
 	//get the pixel coordinates of a value
 	this.getCoord = function(x, y) {
 		var xpos = ((x-this.currCoord.x1)/(this.currCoord.x2-this.currCoord.x1))*this.width;
 		var ypos = this.height - ((y-this.currCoord.y1)/(this.currCoord.y2-this.currCoord.y1))*this.height;
 		return {x : xpos, y : ypos};
-	}
+	};
 
 	//get the (numerical) position of a (pixel) coordinate
 	this.getValue = function(x, y){
@@ -506,11 +506,11 @@ function JSgCalc (element){
 		var xpos = x / scale.x + this.currCoord.x1;
 		var ypos = (this.height - y) / scale.y + this.currCoord.y1;
 		return {x : xpos, y : ypos};
-	}
+	};
 
 	//zoom to a box. the inputs are pixel coordinates
 	this.doZoomBox = function(x1, y1, x2, y2) {
-		if(x1 == x2 || y1 == y2) {
+		if(x1 === x2 || y1 === y2) {
 			dump("Invalid doZoomBox");
 			return;
 		}
@@ -537,7 +537,7 @@ function JSgCalc (element){
 
 		this.startCoord = this.copyCoord(this.currCoord);
 		this.draw();
-	}
+	};
 
 	this.draw = function() {
 		this.drawGrid();
@@ -547,28 +547,28 @@ function JSgCalc (element){
 			this.drawEquation(equation, this.lines[i].color, 3);
 		}
 		jsgui.updateValues();
-	}
+	};
 
 	//Gets the scale (pixels per unit)
 	this.getScale = function() {
 		return {x : (this.width / (this.startCoord.x2 - this.startCoord.x1)),
 			y : (this.height / (this.startCoord.y2 - this.startCoord.y1))}
-	}
+	};
 
 	//get the range of values on the screen
 	this.getRange = function() {
 		return {x : Math.abs(this.startCoord.x2 - this.startCoord.x1),
 			y : Math.abs(this.startCoord.y2 - this.startCoord.y1)}
-	}
+	};
 
 	var started = false;
 	this.checkMove = function(x, y) {
-		if(x == this.prevDrag.x && y == this.prevDrag.y)
+		if(x === this.prevDrag.x && y === this.prevDrag.y)
 			return;
 
 		var scale = this.getScale();
-		if(this.mousebutton == 1) {
-			if(jsgui.currtool == "zoombox" || jsgui.currtool == "zoombox_active") {	//ZOOM BOX
+		if(this.mousebutton === 1) {
+			if(jsgui.currtool === "zoombox" || jsgui.currtool === "zoombox_active") {	//ZOOM BOX
 				this.draw();
 				this.ctx.strokeStyle = "rgb(150,150,150)";
 				this.ctx.strokeRect (this.startDrag.x, this.startDrag.y, x-this.startDrag.x, y-this.startDrag.y);
@@ -586,28 +586,28 @@ function JSgCalc (element){
 				this.draw();
 			}
 		}
-		else if(jsgui.currtool == "trace") {	//TRACE
+		else if(jsgui.currtool === "trace") {	//TRACE
 			this.draw();
 			this.drawTrace(this.getEquation(jsgui.currEq), this.getColor(jsgui.currEq), x / scale.x + this.currCoord.x1);
 		}
-		else if(jsgui.currtool == "vertex") {
+		else if(jsgui.currtool === "vertex") {
 			this.draw();
 			this.drawVertex(this.getEquation(jsgui.currEq), this.getColor(jsgui.currEq), x);
 		}
-		else if(jsgui.currtool == "root") {
+		else if(jsgui.currtool === "root") {
 			this.draw();
 			this.drawRoot(this.getEquation(jsgui.currEq), this.getColor(jsgui.currEq), x);
 		}
-		else if(jsgui.currtool == "intersect") {
+		else if(jsgui.currtool === "intersect") {
 			this.draw();
 			this.drawIntersect(this.getEquation(jsgui.currEq), this.getColor(jsgui.currEq), x);
 		}
-		else if(jsgui.currtool == "derivative") {
+		else if(jsgui.currtool === "derivative") {
 			this.draw();
 			this.drawDerivative(this.getEquation(jsgui.currEq), this.getColor(jsgui.currEq), x);
 		}
 		this.prevDrag = {x : x, y : y};
-	}
+	};
 
 	this.mouseDown = function(event) {
 		document.body.style.cursor = "hand";
@@ -620,25 +620,25 @@ function JSgCalc (element){
 			this.startCoord = this.copyCoord(this.currCoord);
 		}
 		this.mousebutton = 1;
-	}
+	};
 
 	this.mouseUp = function(event) {
 		//document.body.style.cursor = "auto";
-		if(jsgui.currtool == "zoombox_active") {
+		if(jsgui.currtool === "zoombox_active") {
 			this.doZoomBox(this.startDrag.x, this.startDrag.y, event.pageX - this.canvasX, event.pageY - this.canvasY);
 			jsgui.setTool("pointer");
 		}
-		if(jsgui.currtool == "zoomin") {
+		if(jsgui.currtool === "zoomin") {
 			if(Math.abs((event.pageX - this.canvasX) - this.startDrag.x) + Math.abs((event.pageY - this.canvasY) - this.startDrag.y) < 5)
 				this.zoom(0.10, event);
 		}
-		if(jsgui.currtool == "zoomout") {
+		if(jsgui.currtool === "zoomout") {
 			if(Math.abs((event.pageX - this.canvasX) - this.startDrag.x) + Math.abs((event.pageY - this.canvasY) - this.startDrag.y) < 5)
 				this.zoom(-0.10, event);
 		}
 		this.mousebutton = 0;
 		this.startCoord = this.copyCoord(this.currCoord);
-	}
+	};
 
 	this.mouseWheel = function(event, delta) {
 		if(delta > 0) {
@@ -647,7 +647,7 @@ function JSgCalc (element){
 		else {
 			this.zoom(-this.zoomFactor, event);
 		}
-	}
+	};
 	
 	this.setWindow = function(x1, x2, y1, y2) {
 		this.currCoord.x1 = x1;
@@ -656,7 +656,7 @@ function JSgCalc (element){
 		this.currCoord.y2 = y2;
 		this.startCoord = this.copyCoord(this.currCoord);
 		this.draw();
-	}
+	};
 
 	this.zoom = function(scale, event) {
 		var range = this.getRange();
@@ -678,7 +678,7 @@ function JSgCalc (element){
 		}
 		this.startCoord = this.copyCoord(this.currCoord);
 		this.draw();
-	}
+	};
 
 	this.animate = function() {
 		this.currCoord.x1 += 0.05;
@@ -687,7 +687,7 @@ function JSgCalc (element){
 		this.currCoord.y2 += 0.05;
 		this.draw();
 		setTimeout('jsgcalc.animate()', 50);
-	}
+	};
 
 	this.resizeGraph = function(width, height) {
 		var oldheight = this.height;
@@ -715,13 +715,13 @@ function JSgCalc (element){
 		this.maxgridlines.x = 0.015 * width;
 		this.maxgridlines.y = 0.015 * height;
 		this.draw();
-	}
+	};
 
 	this.resetZoom = function() {
 		this.currCoord = {x1 : -5 * (this.width / this.height), y1 : -5, x2 : 5 * (this.width / this.height), y2 : 5};
 		this.startCoord = this.copyCoord(this.currCoord);
 		this.draw();
-	}
+	};
 
 	this.initCanvas = function() {
 		if (this.graph.getContext){
@@ -762,7 +762,7 @@ function JSgCalc (element){
 		else {
 			alert("Sorry, your browser is not supported.");
 		}
-	}
+	};
 };
 
 $(document).ready(function() {
