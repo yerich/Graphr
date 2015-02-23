@@ -349,6 +349,9 @@ var Parser = (function (scope) {
 			"sin": Calc.sin,
 			"cos": Calc.cos,
 			"tan": Calc.tan,
+            sec: Calc.sec,
+            csc: Calc.csc,
+            cot: Calc.cot,                      
 			"asin": Calc.asin,
 			"acos": Calc.acos,
 			"atan": Calc.atan,
@@ -360,7 +363,11 @@ var Parser = (function (scope) {
 			"floor": Math.floor,
 			"round": Math.round,
 			"-": neg,
-			"exp": Math.exp
+			"exp": Math.exp,
+			"gamma" : Calc.gamma,
+            "zeta" : Calc.zeta,
+            "fact" : Calc.fact,
+            "bellb" : Calc.bellb
 		};
 
 		this.ops2 = {
@@ -381,7 +388,14 @@ var Parser = (function (scope) {
 			"max": Math.max,
 			"pyt": pyt,
 			"pow": Math.pow,
-			"atan2": Math.atan2
+			"atan2": Math.atan2,
+            sec: Calc.sec,
+            csc: Calc.csc,
+            cot: Calc.cot,                      
+            "gamma" : Calc.gamma,
+            "zeta" : Calc.zeta,
+            "fact" : Calc.fact,
+            "bellb" : Calc.bellb
 		};
 
 		this.consts = {
@@ -404,6 +418,9 @@ var Parser = (function (scope) {
 		sin: Calc.sin,
 		cos: Calc.cos,
 		tan: Calc.tan,
+        sec: Calc.sec,
+        csc: Calc.csc,
+        cot: Calc.cot,            
 		asin: Calc.asin,
 		acos: Calc.acos,
 		atan: Calc.atan,
@@ -415,13 +432,15 @@ var Parser = (function (scope) {
 		floor: Math.floor,
 		round: Math.round,
 		random: random,
+        fact : Calc.fact,
+        bellb : Calc.bellb,
 		fac: fac,
 		exp: Math.exp,
 		min: Math.min,
 		max: Math.max,
 		pyt: pyt,
 		pow: Math.pow,
-		atan2: Math.atan2,
+		atan2: Math.atan2,        
 		E: Math.E,
 		PI: Math.PI
 	};
