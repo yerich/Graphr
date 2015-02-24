@@ -167,7 +167,7 @@ function calc() {
 	
 	
 	//Terribly Inaccurate. Ah well.
-	this.getVertex = function(equation, start, end, precision){
+	this.getVertex = function(f, start, end, precision){
 		this.loopcounter++;
 		if(Math.abs(end - start) <= precision) {
 			this.loopcounter = 0;
@@ -180,12 +180,12 @@ function calc() {
 
 		var interval = (end-start) / 40;
 		var xval = start - interval;
-		var prevanswer = startanswer = Parser.evaluate(equation, {x : xval});
+		var prevanswer = startanswer = f(xval);
 		for(xval = start; xval <= end; xval += interval) {
 			xval = this.roundFloat(xval);
-			var answer = Parser.evaluate(equation, {x : xval});
+			var answer = f(xval);
 			if((prevanswer > startanswer && answer < prevanswer) || (prevanswer < startanswer && answer > prevanswer)) {
-				return this.getVertex(equation, xval - 2*interval, xval, precision);
+				return this.getVertex(f, xval - 2*interval, xval, precision);
 			}
 			prevanswer = answer;
 		}
@@ -195,41 +195,60 @@ function calc() {
 	
 	//Uses Newton's method to find the root of the equation. Accurate enough for these purposes.
 	this.getRoot = function(equation, guess, range, shifted){
+        var expr = Parser.parse(equation);
+
 		dump(equation + ", guess: "+guess);
 		//Newton's method becomes very inaccurate if the root is too close to zero. Therefore we just whift everything over a few units.
-		if((guess > -0.1 || guess < 0.1) && shifted != true) {
-			dump(equation.replace(/x/g, "(x+5)"));
-			var answer = this.getRoot(equation.replace(/x/g, "(x+5)"), (guess - 5), range, true);
+		if((guess > -0.1 && guess < 0.1) && shifted != true) {
+            var replacedEquation = equation;
+
+            var variables = expr.variables();
+
+            if (variables.length > 0) {
+              var v = variables[0];
+              replacedEquation = replacedEquation.replace(new RegExp('\\b' + v + '\\b', 'g'), '(' + v + '+5)');
+            }
+
+			dump('Replaced equation = ' + replacedEquation);
+			var answer = this.getRoot(replacedEquation, (guess - 5), range, true);
 			dump(answer);
 			if(answer !== false)
 				return answer + 5;
 			return false;
 		}
-		
+
 		if(!range)
 			var range = 5;
-		
+
 		var center = guess;
 		var prev = guess;
 		var j = 0;
+		var f = expr.toJSFunction(expr.variables());
+
 		while (prev > center - range && prev < center + range && j < 100) {
 			var xval = prev;
-			var answer = Parser.evaluate(equation, {x : xval});
-			
+			var answer = f(xval);
+
 			if (answer > -this.eps && answer < this.eps) {
 				return prev;
 			}
-			
-			var derivative = this.getDerivative(equation, xval);
-			if (!isFinite(derivative)) 
+
+			var derivative = this.getDerivative(f, xval);
+			if (!isFinite(derivative))
 				break;
-			
-			dump(derivative);
+
+			//dump('d/dx = ' + derivative);
 			prev = prev - answer / derivative;
 			j++;
 		}
+
+		if (j >= 100) {
+            dump('Convergence failed, best root = ' + prev);
+            return prev;
+		}
+
 		dump("false: center at "+center+" but guess at "+prev);
-		
+
 		return false;
 	};
 	
@@ -239,7 +258,7 @@ function calc() {
 		return this.getRoot("("+equation1 + ") - (" + equation2 + ")", guess, range);
 	};
 
-	this.getDerivative = function(equation, xval){
+	this.getDerivative = function(f, xval){
 		/*
 		 * This is a brute force method of calculating derivatives, using
 		 * Newton's difference quotient (except without a limit)
@@ -259,25 +278,24 @@ function calc() {
 			var h = Math.sqrt(this.eps) * x;
 		else
 			var h = Math.sqrt(this.eps);
-		
-		var answerx = Parser.evaluate(equation, {x : xval});	//Find f(x)
-		
+		      
+		var answerx = f(x);        		
 		for(var i = 1; i <= 50; i++) {
 			var diff = (h * i);
+            var inverseDiff = 1 / diff;
 			
 			//h is positive
 			xval = x + diff;
-			var answer = Parser.evaluate(equation, {x : xval});
-			ddx += ((answer - answerx) / diff);
+			var answer =  f(xval);
+			ddx += (answer - answerx) * inverseDiff;
 			
 			//h is negative
 			xval = x - diff;
-			var answer = Parser.evaluate(equation, {x : xval});
-			ddx += ((answerx - answer) / diff);
+			answer = f(xval);              
+			ddx += (answerx - answer) * inverseDiff;
 		}
 	
-		var ddx = ddx / 100;
-		return ddx;
+		return ddx / 100;
 	};
 
 	/* Utility functions

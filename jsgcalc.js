@@ -63,7 +63,7 @@ function JSgCalc (element){
 	this.drawEquation = function(equation, color, thickness) {
 		if(!equation)
 			return false;
-		
+
 		var x1 = this.currCoord.x1;
 		var x2 = this.currCoord.x2;
 		var y1 = this.currCoord.y1;
@@ -90,11 +90,18 @@ function JSgCalc (element){
 		this.fillareapath = [];
 		this.fillareapath.push([0, this.height - ((-y1) * scale.y)]);
 		//Loop through each pixel
-		var maxxval = this.width + (1 / this.quality);
-		for(var i = 0; i < maxxval; i += (1 / this.quality)) {
-			var xval = i / scale.x + x1;	//calculate the x-value for a given pixel
-			
-			var yval = Parser.evaluate(equation, {"x" : xval});	//evaluate the equation
+
+		var inverseQuality = 1.0 / this.quality;
+		var inverseScaleX = 1.0 / scale.x;
+
+		var maxxval = this.width + inverseQuality;
+
+        var expr = Parser.parse(equation);
+		var f = expr.toJSFunction(expr.variables());
+
+		for(var i = 0; i < maxxval; i += inverseQuality) {
+			var xval = i * inverseScaleX + x1;	//calculate the x-value for a given pixel
+            var yval = f(xval);
 
 			var ypos = this.height - ((yval - y1) * scale.y);
 			//The line is on the screen, or pretty close to it
@@ -201,25 +208,28 @@ function JSgCalc (element){
 
 	//Draws thge vertex of an equation (i.e. when it changes direction)
 	this.drawVertex = function(equation, color, x) {
+        var expr = Parser.parse(equation);
+		var f = expr.toJSFunction(expr.variables());
+      
 		var scale = this.getScale();
 		var xpos = x / scale.x + this.currCoord.x1;
 		var matchingDist = 20 / scale.x;
-		var answer = Calc.getVertex(equation, xpos-matchingDist, xpos+matchingDist, 0.0000001);
+		var answer = Calc.getVertex(f, xpos-matchingDist, xpos+matchingDist, 0.0000001);
 		var tries = 0;
 		while(answer === false) {
 			tries++;
 			if(tries > 5)
 				return false;
-			answer = Calc.getVertex(equation, xpos-matchingDist-Math.random()/100, xpos+matchingDist+Math.random()/100, 0.0000001);
+			answer = Calc.getVertex(f, xpos-matchingDist-Math.random()/100, xpos+matchingDist+Math.random()/100, 0.0000001);
 		}
 		var xval = Calc.roundFloat(answer);
-		var yval = Parser.evaluate(equation, {x : xval});
+		var yval = f(xval);
 		var yval = Calc.roundFloat(this.arbRound(yval, 0.0000001));
 		this.drawDot(xval, yval, color, 4);
 
 		//draw label text
 		this.drawLabel(xval, yval, Calc.roundFloat(this.arbRound(xval, 0.0000001))+", " + yval, "#000000");
-	}
+	};
 
 	//Draws the root of an equation (i.e. where x=0)
 	this.drawRoot = function(equation, color, x) {
@@ -240,7 +250,7 @@ function JSgCalc (element){
 		this.drawLabel(xval, yval, Calc.roundFloat(this.arbRound(xval, 0.00000001))+", " + yval);
 	};
 
-	//draws the intersection of an equation and the nearest equation to the mose pointer
+	//draws the intersection of an equation and the nearest equation to the mouse pointer
 	this.drawIntersect = function(equation1, color, x) {
 		var scale = this.getScale();
 		var xpos = x / scale.x + this.currCoord.x1;
@@ -274,14 +284,17 @@ function JSgCalc (element){
 	};
 
 	this.drawDerivative = function(equation, color, x) {
+        var expr = Parser.parse(equation);
+		var f = expr.toJSFunction(expr.variables());
+        
 		var scale = this.getScale();
 		var xpos = Calc.roundFloat(this.arbRound(x / scale.x + this.currCoord.x1, this.xgridscale/100));
 
 		//Do the actual calculation.
-		var slope = Math.round(Calc.getDerivative(equation, xpos) * 1000000) / 1000000;
+		var slope = Math.round(Calc.getDerivative(f, xpos) * 1000000) / 1000000;
 
 		var xval = xpos;
-		var yval = Parser.evaluate(equation, {x : xval});
+		var yval = f(xval);
 		yval = Calc.roundFloat(this.arbRound(yval, 0.0000001));
 		var pos = this.getCoord(xval, yval);
 		this.ctx.beginPath();
@@ -308,9 +321,9 @@ function JSgCalc (element){
 		var text = "x="+xval+", d/dx="+slope;
 		var xval2 = xval;	//find out whether to put label above or below dot
 		xval -= this.xgridscale / 5;
-		var answer2 = Parser.evaluate(equation, {x : xval});
+		var answer2 = f(xval);
 		xval += this.xgridscale / 10;
-		var answer3 = Parser.evaluate(equation, {x : xval});
+		var answer3 = f(x);
 		if(pos.y-4 < this.charHeight || answer2 > answer3)
 			pos.y += this.charHeight + 3;
 		var textwidth = this.ctx.measureText(text).width;
