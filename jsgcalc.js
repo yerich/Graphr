@@ -269,7 +269,7 @@ function JSgCalc (element){
 				equation = equation1;
 			}
 		}
-		if(answer===false)
+		if(answer === false)
 			return false;
 
 		var xval = Calc.roundFloat(answer);
@@ -383,7 +383,7 @@ function JSgCalc (element){
 
 		//Calculate the scale of the gridlines
 		for(i = 0.000000000001, c = 0; xrange/i > this.maxgridlines.x -1; c++) {
-			if(c % 3 == 1) i *= 2.5;	//alternating between 2, 5 and 10
+			if(c % 3 === 1) i *= 2.5;	//alternating between 2, 5 and 10
 			else i *= 2;
 
             // Ensure we don't get into an infinite loop
@@ -535,7 +535,7 @@ function JSgCalc (element){
 
 	//zoom to a box. the inputs are pixel coordinates
 	this.doZoomBox = function(x1, y1, x2, y2) {
-		if(x1 == x2 || y1 == y2) {
+		if(x1 === x2 || y1 === y2) {
 			dump("Invalid doZoomBox");
 			return;
 		}
@@ -595,12 +595,12 @@ function JSgCalc (element){
 
 	var started = false;
 	this.checkMove = function(x, y) {
-		if(x == this.prevDrag.x && y == this.prevDrag.y)
+		if(x === this.prevDrag.x && y === this.prevDrag.y)
 			return;
 
 		var scale = this.getScale();
-		if(this.mousebutton == 1) {
-			if(jsgui.currtool == "zoombox" || jsgui.currtool == "zoombox_active") {	//ZOOM BOX
+		if(this.mousebutton === 1) {
+			if(jsgui.currtool === "zoombox" || jsgui.currtool === "zoombox_active") {	//ZOOM BOX
 				this.draw();
 				this.ctx.strokeStyle = "rgb(150,150,150)";
 				this.ctx.strokeRect (this.startDrag.x, this.startDrag.y, x-this.startDrag.x, y-this.startDrag.y);
@@ -618,23 +618,23 @@ function JSgCalc (element){
 				this.draw();
 			}
 		}
-		else if(jsgui.currtool == "trace") {	//TRACE
+		else if(jsgui.currtool === "trace") {	//TRACE
 			this.draw();
 			this.drawTrace(this.getEquation(jsgui.currEq), this.getColor(jsgui.currEq), x / scale.x + this.currCoord.x1);
 		}
-		else if(jsgui.currtool == "vertex") {
+		else if(jsgui.currtool === "vertex") {
 			this.draw();
 			this.drawVertex(this.getEquation(jsgui.currEq), this.getColor(jsgui.currEq), x);
 		}
-		else if(jsgui.currtool == "root") {
+		else if(jsgui.currtool === "root") {
 			this.draw();
 			this.drawRoot(this.getEquation(jsgui.currEq), this.getColor(jsgui.currEq), x);
 		}
-		else if(jsgui.currtool == "intersect") {
+		else if(jsgui.currtool === "intersect") {
 			this.draw();
 			this.drawIntersect(this.getEquation(jsgui.currEq), this.getColor(jsgui.currEq), x);
 		}
-		else if(jsgui.currtool == "derivative") {
+		else if(jsgui.currtool === "derivative") {
 			this.draw();
 			this.drawDerivative(this.getEquation(jsgui.currEq), this.getColor(jsgui.currEq), x);
 		}
@@ -644,7 +644,7 @@ function JSgCalc (element){
 	this.mouseDown = function(event) {
 		document.body.style.cursor = "hand";
 		if(this.mousebutton == 0) {
-			if(jsgui.currtool == "zoombox") {
+			if(jsgui.currtool === "zoombox") {
 				jsgui.currtool = "zoombox_active";
 			}
 			this.startDrag.x = event.pageX - this.canvasX;
@@ -656,15 +656,15 @@ function JSgCalc (element){
 
 	this.mouseUp = function(event) {
 		//document.body.style.cursor = "auto";
-		if(jsgui.currtool == "zoombox_active") {
+		if(jsgui.currtool === "zoombox_active") {
 			this.doZoomBox(this.startDrag.x, this.startDrag.y, event.pageX - this.canvasX, event.pageY - this.canvasY);
 			jsgui.setTool("pointer");
 		}
-		if(jsgui.currtool == "zoomin") {
+		if(jsgui.currtool === "zoomin") {
 			if(Math.abs((event.pageX - this.canvasX) - this.startDrag.x) + Math.abs((event.pageY - this.canvasY) - this.startDrag.y) < 5)
 				this.zoom(0.10, event);
 		}
-		if(jsgui.currtool == "zoomout") {
+		if(jsgui.currtool === "zoomout") {
 			if(Math.abs((event.pageX - this.canvasX) - this.startDrag.x) + Math.abs((event.pageY - this.canvasY) - this.startDrag.y) < 5)
 				this.zoom(-0.10, event);
 		}
