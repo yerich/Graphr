@@ -378,8 +378,8 @@ function JSgCalc (element){
 		var yrange = y2 - y1;
 
 		//Calculate the numeric value of each pixel (scale of the graph)
-		var xscale = Math.max(xrange/this.width, 1E-6);
-		var yscale = Math.max(yrange/this.height, 1E-6);
+		var xscale = Math.max(xrange/this.width, 1E-20);
+		var yscale = Math.max(yrange/this.height, 1E-20);
 
 		//Calculate the scale of the gridlines
 		for(i = 0.000000000001, c = 0; xrange/i > this.maxgridlines.x -1; c++) {
