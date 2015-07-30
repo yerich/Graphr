@@ -84,6 +84,10 @@ function JSgui() {
 		$("#graph_inputs div.graph_input_wrapper").each(function() {
 			jsgcalc.lines.push({equation : $("input", this).val(), color : $(".graph_color_indicator", this).css('backgroundColor')});
 		});
+		$("#FR_inputs div.graph_input_wrapper").each(function() {
+			jsgcalc.lines.push({equation : $("input", this).val(), color : $(".graph_color_indicator", this).css('backgroundColor')});
+			jsgcalc.lines.push({equation : $(1/"input", this).val(), color : $(".graph_color_indicator", this).css('backgroundColor')});
+		});
 	}
 
 	this.evaluate = function() {
