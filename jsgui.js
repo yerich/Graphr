@@ -93,7 +93,8 @@ function JSgui() {
 	this.evaluate = function() {
 		this.updateInputData();
 		jsgcalc.draw();
-		this.refreshInputs();
+		this.refreshInputs("#graph_inputs");
+		this.refreshInputs("#FR_inputs")
 	}
 
 	this.findAvailableColor = function() {
@@ -109,18 +110,6 @@ function JSgui() {
 		$("input.jsgcalc_xmax").val(Math.round(jsgcalc.currCoord.x2 * 1000) / 1000);
 		$("input.jsgcalc_ymin").val(Math.round(jsgcalc.currCoord.y1 * 1000) / 1000);
 		$("input.jsgcalc_ymax").val(Math.round(jsgcalc.currCoord.y2 * 1000) / 1000);
-	}
-
-	this.addInput = function() {
-		this.updateInputData();
-		var newcolor = this.findAvailableColor();
-		this.lineColors[newcolor] = this.currInput;
-		jsgcalc.lines.push({
-			equation: "",
-			color: newcolor
-		});
-		this.currInput++;
-		this.refreshInputs();
 	}
 	
 	this.addInputX = function() {
