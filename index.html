@@ -125,6 +125,7 @@
 
 <div id="sidewrapper">
 	<div id="graph_sidebar">
+		<div id='original'>
 		<h1 style="font-family: Lato, Arial, sans-serif; font-style: italic; font-size: 28pt; color: #3d94f6; text-shadow: 1px 1px #FFF ">Graphr</h1>
 		<span style="font-size: 90%; position: relative; bottom: 4px;"><em>The JavaScript Graphing Calculator</em>
 		</span><br /><br />
@@ -160,6 +161,45 @@
 				<a href="javascript:void(0)" onclick="jsgui.setQuality(1)" id="quality_select_1" class="option option_selected">HIGH</a>
 				<a href="javascript:void(0)" onclick="jsgui.setQuality(5)" id="quality_select_5" class="option">ULTRA</a>
 			</div>
+		</div>
+		</div>
+		
+		<div id='FR'>
+		<span style="font-size: 90%; position: relative; bottom: 4px;"><em>Frame of reference creation</em>
+		</span><br /><br />
+
+		<div id="FR_inputs">
+			
+		</div>
+		<br />
+		<div id="buttonbar">
+			<a class="fancybutton" href="javascript:void(0)" onclick="jsgui.evaluate()">Evaluate</a>
+			<a class="fancybutton" href="javascript:void(0)" onclick="jsgui.FRaddInput()">+</a>
+			<a class="fancybutton greybutton" href="javascript:void(0)" id="settings_button" onclick="$('#settings').toggle(400)"><img src='images/settings.png' alt='Settings' /></a><br /><br />
+		</div>
+
+		<div id="settings">
+			<div id="angle_select" class="options_list">
+				<a href="javascript:void(0)" onclick="jsgui.setAngles('degrees')" id="angle_select_degrees" class="option">DEG</a>
+				<a href="javascript:void(0)" onclick="jsgui.setAngles('radians')" id="angle_select_radians" class="option option_selected">RAD</a>
+				<a href="javascript:void(0)" onclick="jsgui.setAngles('gradians')" id="angle_select_gradians" class="option">GRAD</a>
+			</div>
+	
+			<div id="gridlines_select" class="options_list">
+				Gridlines:
+				<a href="javascript:void(0)" onclick="jsgui.setGridlines('normal')" id="gridlines_select_normal" class="option option_selected">NORMAL</a>
+				<a href="javascript:void(0)" onclick="jsgui.setGridlines('less')" id="gridlines_select_less" class="option">LESS</a>
+				<a href="javascript:void(0)" onclick="jsgui.setGridlines('off')" id="gridlines_select_off" class="option">OFF</a>
+			</div>
+	
+			<div id="quality_select" class="options_list">
+				Precision:
+				<a href="javascript:void(0)" onclick="jsgui.setQuality(0.1)" id="quality_select_01" class="option">LOW</a>
+				<a href="javascript:void(0)" onclick="jsgui.setQuality(0.5)" id="quality_select_05" class="option">MED</a>
+				<a href="javascript:void(0)" onclick="jsgui.setQuality(1)" id="quality_select_1" class="option option_selected">HIGH</a>
+				<a href="javascript:void(0)" onclick="jsgui.setQuality(5)" id="quality_select_5" class="option">ULTRA</a>
+			</div>
+		</div>
 		</div>
 		
 		<a class="FlattrButton" style="display:none;" rev="flattr;button:compact;" href="http://www.graphr.org/"></a>

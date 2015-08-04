@@ -84,12 +84,17 @@ function JSgui() {
 		$("#graph_inputs div.graph_input_wrapper").each(function() {
 			jsgcalc.lines.push({equation : $("input", this).val(), color : $(".graph_color_indicator", this).css('backgroundColor')});
 		});
+		$("#FR_inputs div.graph_input_wrapper").each(function() {
+			jsgcalc.lines.push({equation : $("input", this).val(), color : $(".graph_color_indicator", this).css('backgroundColor')});
+			jsgcalc.lines.push({equation : $(1/"input", this).val(), color : $(".graph_color_indicator", this).css('backgroundColor')});
+		});
 	}
 
 	this.evaluate = function() {
 		this.updateInputData();
 		jsgcalc.draw();
-		this.refreshInputs();
+		this.refreshInputs("#graph_inputs");
+		this.refreshInputs("#FR_inputs")
 	}
 
 	this.findAvailableColor = function() {
@@ -106,8 +111,8 @@ function JSgui() {
 		$("input.jsgcalc_ymin").val(Math.round(jsgcalc.currCoord.y1 * 1000) / 1000);
 		$("input.jsgcalc_ymax").val(Math.round(jsgcalc.currCoord.y2 * 1000) / 1000);
 	}
-
-	this.addInput = function() {
+	
+	this.addInputX = function() {
 		this.updateInputData();
 		var newcolor = this.findAvailableColor();
 		this.lineColors[newcolor] = this.currInput;
@@ -116,22 +121,31 @@ function JSgui() {
 			color: newcolor
 		});
 		this.currInput++;
-		this.refreshInputs();
 	}
 	
-	this.refreshInputs = function() {
+	this.addInput = function() {
+		this.addInputX();
+		this.refreshInputs("#graph_inputs");
+	}
+	
+	this.FRaddInput = function() {
+		this.addInputX();
+		this.refreshInputs("#FR_inputs");
+	}
+	
+	this.refreshInputs = function(field) {
 		var equations = jsgcalc.lines;
 		
-		$("#graph_inputs").html("");
+		$(field).html("");
 		for(i in equations) {
-			$("#graph_inputs").append("<div id=\"graph_input_wrapper_"+i+"\" class=\"graph_input_wrapper\">"+
+			$(field).append("<div id=\"graph_input_wrapper_"+i+"\" class=\"graph_input_wrapper\">"+
 				"<div class=\"graph_color_indicator\" id=\"graph_color_indicator_"+i+"\"></div>"+
 				"<div class=\"graph_equation_display\"><span>y =</span><input id=\"graph_input_"+i+"\" size=\"20\" value=\""+equations[i].equation+"\"/></div></div>");
 			$("#graph_color_indicator_"+i).css("backgroundColor", equations[i].color);
 			this.lineColors[equations[i].color] = i;
 		}
 		
-		$("#graph_inputs div.graph_input_wrapper").each(function() {
+		$(field+" div.graph_input_wrapper").each(function() {
 			$(this).bind("click", function() {
 				var id = $(this).attr("id");
 				var num = String(id).replace("graph_input_wrapper_", "");
