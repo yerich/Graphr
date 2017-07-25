@@ -1,4 +1,4 @@
-#Graphr, the JavaScript Graphing Calculator
+# Graphr, the JavaScript Graphing Calculator
 By Richard Ye - http://www.yerich.net/
 
 This is a JavaScript implementation of a graphical calculator, with support for
